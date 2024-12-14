@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Interactive Portfolio</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #87ceeb;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            font-size: 14px;
+        }
+
+        .tooltip h3 {
+            margin: 0;
+            color: #0078D7;
+        }
+
+        .tooltip p {
+            margin: 5px 0;
+        }
+
+        .tooltip a {
+            color: #0078D7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const buildings = [
+            { x: 100, y: 300, width: 150, height: 200, name: 'Project 1', description: 'Description of Project 1', link: '#' },
+            { x: 300, y: 250, width: 150, height: 250, name: 'Project 2', description: 'Description of Project 2', link: '#' },
+            { x: 500, y: 280, width: 150, height: 220, name: 'Project 3', description: 'Description of Project 3', link: '#' },
+            { x: 700, y: 270, width: 150, height: 230, name: 'Project 4', description: 'Description of Project 4', link: '#' },
+            { x: 900, y: 290, width: 150, height: 210, name: 'BrainrotCoin', description: 'A cryptocurrency token based on the Ethereum blockchain.', link: 'brainrotcoin.html' },
+        ];
+
+        const player = {
+            x: 50,
+            y: canvas.height - 100,
+            width: 50,
+            height: 100,
+            color: 'blue',
+            speed: 5
+        };
+
+        let keys = {};
+
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            let showTooltip = false;
+
+            buildings.forEach(building => {
+                if (
+                    mouseX > building.x &&
+                    mouseX < building.x + building.width &&
+                    mouseY > building.y &&
+                    mouseY < building.y + building.height
+                ) {
+                    tooltip.style.left = `${e.clientX + 10}px`;
+                    tooltip.style.top = `${e.clientY + 10}px`;
+                    tooltip.innerHTML = `
+                        <h3>${building.name}</h3>
+                        <p>${building.description}</p>
+                        <a href="${building.link}" target="_blank">View Project</a>
+                    `;
+                    tooltip.style.display = 'block';
+                    showTooltip = true;
+                }
+            });
+
+            if (!showTooltip) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        function drawBuildings() {
+            buildings.forEach(building => {
+                ctx.fillStyle = '#8B0000';
+                ctx.fillRect(building.x, building.y, building.width, building.height);
+                ctx.fillStyle = 'white';
+                ctx.fillText(building.name, building.x + 10, building.y + 20);
+            });
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function updatePlayer() {
+            if (keys['ArrowRight'] && player.x + player.width < canvas.width) {
+                player.x += player.speed;
+            }
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawBuildings();
+            drawPlayer();
+            updatePlayer();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
